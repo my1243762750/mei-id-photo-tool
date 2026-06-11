@@ -124,13 +124,15 @@ const CLOTHES: ClothesItem[] = [
 ]
 
 const BG_COLORS = [
-  { label: "白色", value: "white" },
-  { label: "红色", value: "red" },
-  { label: "深红", value: "dark_red" },
-  { label: "蓝色", value: "blue" },
-  { label: "浅蓝", value: "tint" },
-  { label: "深蓝", value: "dark_blue" },
-  { label: "灰色", value: "gray" },
+  { label: "白色", value: "white", hex: "#FFFFFF" },
+  { label: "红色", value: "red", hex: "#FF0000" },
+  { label: "深红", value: "dark_red", hex: "#990000" },
+  { label: "蓝色", value: "blue", hex: "#0066FF" },
+  { label: "浅蓝", value: "tint", hex: "#4DB8FF" },
+  { label: "深蓝", value: "dark_blue", hex: "#003399" },
+  { label: "灰色", value: "gray", hex: "#999999" },
+  { label: "渐变蓝", value: "#3492C4,#ffffff", hex: "linear-gradient(180deg, #3492C4, #ffffff)" },
+  { label: "渐变灰", value: "#9c9c9c,#f9f9f9", hex: "linear-gradient(180deg, #9c9c9c, #f9f9f9)" },
 ]
 
 export default function IdPhotoTest() {
@@ -143,16 +145,20 @@ export default function IdPhotoTest() {
   const [idphotoPhotoid, setIdphotoPhotoid] = useState<string | null>(null)
   const [resultPreview, setResultPreview] = useState<string | null>(null)
   const [result, setResult] = useState<any>(null)
-  const [step, setStep] = useState<"idle" | "creating" | "changing">("idle")
+  const [creating, setCreating] = useState(false)
+  const [changing, setChanging] = useState(false)
   const [error, setError] = useState("")
-  const [stepLog, setStepLog] = useState<string[]>([])
+  const [step1Error, setStep1Error] = useState("")
+  const [step2Error, setStep2Error] = useState("")
+  const [manualPhotoid, setManualPhotoid] = useState("")
+  const [manualDownloadType, setManualDownloadType] = useState<"clothes" | "idphoto">("clothes")
+  const [downloadResult, setDownloadResult] = useState<string | null>(null)
+  const [downloadImageUrl, setDownloadImageUrl] = useState<string | null>(null)
+  const [downloading, setDownloading] = useState(false)
+  const [extraParams, setExtraParams] = useState("")
   const fileRef = useRef<HTMLInputElement>(null)
 
   const selectedClothes = CLOTHES.find((c) => c.id === clothesId)
-
-  function addLog(msg: string) {
-    setStepLog((prev) => [...prev, msg])
-  }
 
   function handleFileChange() {
     const file = fileRef.current?.files?.[0]
@@ -162,90 +168,95 @@ export default function IdPhotoTest() {
       setIdphotoPhotoid(null)
       setResultPreview(null)
       setResult(null)
-      setStepLog([])
+      setStep1Error("")
+      setStep2Error("")
     } else {
       setPhotoPreview(null)
     }
   }
 
-  async function handleSubmit() {
+  async function handleCreateIdPhoto() {
     if (!apiKey) return setError("请输入 API Key")
     if (!fileRef.current?.files?.[0]) return setError("请上传照片")
 
     setError("")
-    setStep("creating")
-    setResult(null)
+    setStep1Error("")
+    setCreating(true)
+    setIdphotoPreview(null)
+    setIdphotoPhotoid(null)
     setResultPreview(null)
-    setStepLog([])
+    setResult(null)
 
     try {
       const file = fileRef.current.files[0]
+      const formData = new FormData()
+      formData.append("apiKey", apiKey)
+      formData.append("file", file)
+      formData.append("color", bgColor)
+      formData.append("filetype", fileFormat)
 
-      addLog("步骤 1/2：正在制作证件照...")
-
-      const step1Form = new FormData()
-      step1Form.append("apiKey", apiKey)
-      step1Form.append("file", file)
-      step1Form.append("color", bgColor)
-      step1Form.append("filetype", fileFormat)
-
-      const step1Res = await fetch("/api/create-idphoto", {
+      const res = await fetch("/api/create-idphoto", {
         method: "POST",
-        body: step1Form,
+        body: formData,
       })
 
-      const step1Data = await step1Res.json()
+      const data = await res.json()
 
-      if (step1Data.code !== 0) {
-        setError(`步骤 1 失败：${step1Data.msg || JSON.stringify(step1Data)}`)
-        setStep("idle")
+      if (data.code !== 0) {
+        setStep1Error(`制作失败：${data.msg || JSON.stringify(data)}`)
         return
       }
 
-      const photoid = step1Data.photoid
-      setIdphotoPhotoid(photoid)
-
-      if (step1Data.image) {
-        const imgSrc = `data:image/${fileFormat};base64,${step1Data.image}`
-        setIdphotoPreview(imgSrc)
-      }
-
-      addLog(`步骤 1 完成，获得 photoid: ${photoid.slice(0, 16)}...`)
-
-      setStep("changing")
-      addLog("步骤 2/2：正在换装...")
-
-      const step2Form = new FormData()
-      step2Form.append("apiKey", apiKey)
-      step2Form.append("photoid", photoid)
-      step2Form.append("clothes_id", String(clothesId))
-      step2Form.append("width", "295")
-      step2Form.append("height", "413")
-      step2Form.append("color", bgColor)
-      step2Form.append("filetype", fileFormat)
-
-      const step2Res = await fetch("/api/change-clothes", {
-        method: "POST",
-        body: step2Form,
-      })
-
-      const step2Data = await step2Res.json()
-      setResult(step2Data)
-
-      if (step2Data.code === 0 && step2Data.image) {
-        setResultPreview(`data:image/${fileFormat};base64,${step2Data.image}`)
-        addLog("步骤 2 完成！")
-      } else {
-        addLog(`步骤 2 失败：${step2Data.msg || JSON.stringify(step2Data)}`)
+      setIdphotoPhotoid(data.photoid)
+      if (data.image) {
+        setIdphotoPreview(`data:image/${fileFormat};base64,${data.image}`)
       }
     } catch (err) {
-      setError(String(err))
+      setStep1Error(String(err))
     } finally {
-      setStep("idle")
+      setCreating(false)
     }
   }
 
-  const isLoading = step !== "idle"
+  async function handleChangeClothes() {
+    if (!apiKey) return setError("请输入 API Key")
+    if (!idphotoPhotoid) return setError("请先制作证件照")
+
+    setError("")
+    setStep2Error("")
+    setChanging(true)
+    setResultPreview(null)
+    setResult(null)
+
+    try {
+      const formData = new FormData()
+      formData.append("apiKey", apiKey)
+      formData.append("photoid", idphotoPhotoid)
+      formData.append("clothes_id", String(clothesId))
+      formData.append("width", "295")
+      formData.append("height", "413")
+      formData.append("color", bgColor)
+      formData.append("filetype", fileFormat)
+
+      const res = await fetch("/api/change-clothes", {
+        method: "POST",
+        body: formData,
+      })
+
+      const data = await res.json()
+      setResult(data)
+
+      if (data.code === 0 && data.image) {
+        setResultPreview(`data:image/${fileFormat};base64,${data.image}`)
+      } else {
+        setStep2Error(`换装失败：${data.msg || JSON.stringify(data)}`)
+      }
+    } catch (err) {
+      setStep2Error(String(err))
+    } finally {
+      setChanging(false)
+    }
+  }
 
   return (
     <div style={{ maxWidth: 720, margin: "0 auto", padding: "32px 16px" }}>
@@ -253,7 +264,7 @@ export default function IdPhotoTest() {
         电子照助手 证件照换装测试
       </h1>
       <p style={{ fontSize: 13, color: "#6b7280", marginBottom: 24 }}>
-        流程：上传照片 → 自动抠图制作证件照 → 换装
+        两步流程：1. 制作证件照（免费）→ 2. 换装（免费预览，下载扣 20 点）
       </p>
 
       <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
@@ -276,6 +287,17 @@ export default function IdPhotoTest() {
             注册 dianzizhao.com 后在个人中心获取，新用户免费赠送 1000 点
           </p>
         </div>
+
+        {/* Global error */}
+        {error && (
+          <div style={{
+            borderRadius: 6, border: "1px solid #fecaca",
+            backgroundColor: "#fef2f2", padding: "12px 16px",
+            fontSize: 14, color: "#b91c1c",
+          }}>
+            {error}
+          </div>
+        )}
 
         {/* Photo upload + preview */}
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, alignItems: "start" }}>
@@ -310,73 +332,6 @@ export default function IdPhotoTest() {
           )}
         </div>
 
-        {/* ID Photo preview (after step 1) */}
-        {idphotoPreview && (
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
-            <div>
-              <label style={{ display: "block", fontSize: 14, fontWeight: 500, marginBottom: 6 }}>
-                步骤 1：证件照（抠图+换底）
-              </label>
-              <img
-                src={idphotoPreview}
-                alt="证件照"
-                style={{
-                  maxWidth: "100%", maxHeight: 200, borderRadius: 6,
-                  border: "2px solid #22c55e", boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
-                }}
-              />
-            </div>
-          </div>
-        )}
-
-        {/* Clothing selector */}
-        <div>
-          <label style={{ display: "block", fontSize: 14, fontWeight: 500, marginBottom: 6 }}>
-            服装 {selectedClothes?.group && <span style={{ fontSize: 12, color: "#6b7280" }}>（{selectedClothes.group}）</span>}
-          </label>
-          <select
-            value={clothesId}
-            onChange={(e) => setClothesId(Number(e.target.value))}
-            style={{
-              width: "100%", padding: "8px 12px", fontSize: 14,
-              borderRadius: 6, border: "1px solid #d0d5dd",
-            }}
-          >
-            <optgroup label="男装">
-              {CLOTHES.filter((c) => c.group === "男装").map((c) => (
-                <option key={c.id} value={c.id}>{c.label}</option>
-              ))}
-            </optgroup>
-            <optgroup label="女装">
-              {CLOTHES.filter((c) => c.group === "女装").map((c) => (
-                <option key={c.id} value={c.id}>{c.label}</option>
-              ))}
-            </optgroup>
-            <optgroup label="童装">
-              {CLOTHES.filter((c) => c.group === "童装").map((c) => (
-                <option key={c.id} value={c.id}>{c.label}</option>
-              ))}
-            </optgroup>
-          </select>
-
-          {selectedClothes && (
-            <div style={{ marginTop: 8, display: "flex", gap: 8, alignItems: "center" }}>
-              <img
-                src={`/clothes/${selectedClothes.group}/${clothesId}.jpg`}
-                alt={selectedClothes.label}
-                style={{
-                  width: 80, height: 80, objectFit: "contain",
-                  borderRadius: 6, border: "1px solid #d0d5dd", backgroundColor: "#f9fafb",
-                }}
-                onError={(e) => {
-                  e.currentTarget.style.display = "none"
-                }}
-              />
-              <span style={{ fontSize: 13, color: "#374151" }}>{selectedClothes.label}</span>
-            </div>
-          )}
-        </div>
-
         {/* Background + Format */}
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
           <div>
@@ -389,13 +344,18 @@ export default function IdPhotoTest() {
                   key={c.value}
                   onClick={() => setBgColor(c.value)}
                   style={{
-                    padding: "6px 12px", borderRadius: 6, fontSize: 13,
+                    display: "flex", flexDirection: "column", alignItems: "center",
+                    padding: 4, borderRadius: 6, cursor: "pointer", minWidth: 60,
                     border: bgColor === c.value ? "2px solid #2563eb" : "1px solid #d0d5dd",
-                    backgroundColor: bgColor === c.value ? "#eff6ff" : "#fff",
-                    cursor: "pointer", fontWeight: bgColor === c.value ? 600 : 400,
+                    backgroundColor: "#fff",
                   }}
                 >
-                  {c.label}
+                  <div style={{
+                    width: 36, height: 36, borderRadius: 4, marginBottom: 4,
+                    background: c.hex,
+                    border: "1px solid #e5e7eb",
+                  }} />
+                  <span style={{ fontSize: 11, color: "#374151" }}>{c.label}</span>
                 </button>
               ))}
             </div>
@@ -425,39 +385,253 @@ export default function IdPhotoTest() {
           </div>
         </div>
 
-        {/* Submit */}
+        {/* Step 1 button */}
         <button
-          onClick={handleSubmit}
-          disabled={isLoading}
+          onClick={handleCreateIdPhoto}
+          disabled={creating}
           style={{
             padding: "10px 24px", fontSize: 15, fontWeight: 600, borderRadius: 6,
-            border: "none", backgroundColor: isLoading ? "#93c5fd" : "#2563eb",
-            color: "#fff", cursor: isLoading ? "not-allowed" : "pointer", alignSelf: "flex-start",
+            border: "none", backgroundColor: creating ? "#93c5fd" : "#2563eb",
+            color: "#fff", cursor: creating ? "not-allowed" : "pointer", alignSelf: "flex-start",
           }}
         >
-          {step === "creating" ? "正在制作证件照..." : step === "changing" ? "正在换装..." : "开始处理"}
+          {creating ? "正在制作证件照..." : "步骤 1：制作证件照"}
         </button>
 
-        {/* Error */}
-        {error && (
+        {/* Step 1 error */}
+        {step1Error && (
           <div style={{
             borderRadius: 6, border: "1px solid #fecaca",
             backgroundColor: "#fef2f2", padding: "12px 16px",
             fontSize: 14, color: "#b91c1c",
           }}>
-            {error}
+            {step1Error}
           </div>
         )}
 
-        {/* Step log */}
-        {stepLog.length > 0 && (
+        {/* ID Photo result */}
+            {idphotoPreview && (
           <div style={{
-            borderRadius: 6, border: "1px solid #d0d5dd",
-            backgroundColor: "#f9fafb", padding: 12, fontSize: 13, color: "#374151",
+            borderRadius: 6, border: "2px solid #22c55e", padding: 16,
+            backgroundColor: "#f0fdf4",
           }}>
-            {stepLog.map((log, i) => (
-              <div key={i}>{log}</div>
-            ))}
+            <h2 style={{ fontSize: 14, fontWeight: 600, marginBottom: 8, color: "#166534" }}>
+              步骤 1 完成：证件照制作成功
+            </h2>
+            <img
+              src={idphotoPreview}
+              alt="证件照"
+              style={{ maxHeight: 300, width: "auto", borderRadius: 6 }}
+            />
+            <p style={{ fontSize: 12, color: "#6b7280", marginTop: 8 }}>
+              photoid: {idphotoPhotoid?.slice(0, 50)}...
+            </p>
+            <button
+              onClick={async () => {
+                if (!idphotoPhotoid) return
+                try {
+                  const res = await fetch(
+                    `/api/download?photoid=${encodeURIComponent(idphotoPhotoid)}&apiKey=${encodeURIComponent(apiKey)}&type=idphoto`
+                  )
+                  const text = await res.text()
+                  alert(`证件照下载测试结果 (${res.status}):\n${text.slice(0, 500)}`)
+                } catch (err) {
+                  alert("下载出错：" + err)
+                }
+              }}
+              style={{
+                marginTop: 8, padding: "6px 12px", borderRadius: 6, fontSize: 12,
+                border: "1px solid #d0d5dd", backgroundColor: "#fff", cursor: "pointer",
+              }}
+            >
+              测试：下载证件照无水印原图
+            </button>
+          </div>
+        )}
+
+        {/* Step 2 section - only show after step 1 */}
+        {idphotoPhotoid && (
+          <>
+            <hr style={{ border: "none", borderTop: "1px solid #e5e7eb" }} />
+
+            {/* Clothing selector - grid display */}
+            <div>
+              <label style={{ display: "block", fontSize: 14, fontWeight: 500, marginBottom: 6 }}>
+                选择服装
+              </label>
+
+              {/* Tabs */}
+              <div style={{ display: "flex", gap: 4, marginBottom: 12 }}>
+                {["男装", "女装", "童装"].map((group) => {
+                  const isActive = selectedClothes?.group === group
+                  const count = CLOTHES.filter((c) => c.group === group).length
+                  return (
+                    <button
+                      key={group}
+                      onClick={() => {
+                        const first = CLOTHES.find((c) => c.group === group)
+                        if (first) setClothesId(first.id)
+                      }}
+                      style={{
+                        padding: "6px 16px", borderRadius: 6, fontSize: 13, fontWeight: 500,
+                        border: isActive ? "2px solid #2563eb" : "1px solid #d0d5dd",
+                        backgroundColor: isActive ? "#eff6ff" : "#fff",
+                        color: isActive ? "#2563eb" : "#374151",
+                        cursor: "pointer",
+                      }}
+                    >
+                      {group} ({count})
+                    </button>
+                  )
+                })}
+              </div>
+
+              {/* Grid */}
+              <div style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fill, minmax(80px, 1fr))",
+                gap: 8,
+                maxHeight: 400,
+                overflowY: "auto",
+                padding: 4,
+              }}>
+                {CLOTHES.filter((c) => c.group === selectedClothes?.group).map((c) => (
+                  <button
+                    key={c.id}
+                    onClick={() => setClothesId(c.id)}
+                    style={{
+                      display: "flex", flexDirection: "column", alignItems: "center",
+                      padding: 4, borderRadius: 6, cursor: "pointer",
+                      border: clothesId === c.id ? "2px solid #2563eb" : "1px solid #e5e7eb",
+                      backgroundColor: clothesId === c.id ? "#eff6ff" : "#fff",
+                      transition: "all 0.15s",
+                    }}
+                  >
+                    <img
+                      src={`/clothes/${c.group}/${c.id}.jpg`}
+                      alt={c.label}
+                      style={{
+                        width: 64, height: 64, objectFit: "contain",
+                        borderRadius: 4,
+                      }}
+                      onError={(e) => {
+                        e.currentTarget.style.display = "none"
+                      }}
+                    />
+                    <span style={{ fontSize: 11, color: "#6b7280", marginTop: 2 }}>
+                      {c.id}
+                    </span>
+                  </button>
+                ))}
+              </div>
+
+              {/* Selected info */}
+              {selectedClothes && (
+                <div style={{
+                  marginTop: 8, padding: "8px 12px", borderRadius: 6,
+                  backgroundColor: "#eff6ff", fontSize: 13, color: "#2563eb",
+                  display: "flex", alignItems: "center", gap: 8,
+                }}>
+                  <span>已选择：</span>
+                  <strong>{selectedClothes.label}</strong>
+                  <span style={{ color: "#6b7280", fontSize: 12 }}>（{selectedClothes.group}，ID: {clothesId}）</span>
+                </div>
+              )}
+            </div>
+
+            {/* Step 2 button */}
+            <button
+              onClick={handleChangeClothes}
+              disabled={changing}
+              style={{
+                padding: "10px 24px", fontSize: 15, fontWeight: 600, borderRadius: 6,
+                border: "none", backgroundColor: changing ? "#93c5fd" : "#16a34a",
+                color: "#fff", cursor: changing ? "not-allowed" : "pointer", alignSelf: "flex-start",
+              }}
+            >
+              {changing ? "正在换装..." : "步骤 2：换装"}
+            </button>
+
+            {/* Step 2 error */}
+            {step2Error && (
+              <div style={{
+                borderRadius: 6, border: "1px solid #fecaca",
+                backgroundColor: "#fef2f2", padding: "12px 16px",
+                fontSize: 14, color: "#b91c1c",
+              }}>
+                {step2Error}
+              </div>
+            )}
+          </>
+        )}
+
+        {/* Result preview */}
+        {resultPreview && (
+          <div style={{
+            borderRadius: 6, border: "1px solid #d0d5dd", padding: 16,
+          }}>
+            <h2 style={{ fontSize: 14, fontWeight: 600, marginBottom: 8 }}>换装结果预览</h2>
+            <img
+              src={resultPreview}
+              alt="换装结果"
+              style={{ maxHeight: 500, width: "auto", borderRadius: 6, boxShadow: "0 4px 12px rgba(0,0,0,0.15)" }}
+            />
+            <div style={{ marginTop: 12, display: "flex", gap: 8, alignItems: "center" }}>
+              <button
+                onClick={() => {
+                  const link = document.createElement("a")
+                  link.href = resultPreview
+                  link.download = `idphoto_clothes.${fileFormat}`
+                  link.click()
+                }}
+                style={{
+                  padding: "8px 16px", borderRadius: 6, fontSize: 13, fontWeight: 500,
+                  border: "1px solid #d0d5dd", backgroundColor: "#fff",
+                  cursor: "pointer", color: "#374151",
+                }}
+              >
+                保存预览图（有水印）
+              </button>
+              <button
+                onClick={async () => {
+                  if (!result?.photoid) return
+                  try {
+                    const params = new URLSearchParams({
+                      photoid: result.photoid,
+                      apiKey: apiKey,
+                    })
+                    const res = await fetch(`/api/download?${params.toString()}`)
+                    const contentType = res.headers.get("Content-Type") || ""
+                    if (!res.ok) {
+                      const text = await res.text()
+                      alert(`下载失败 (${res.status})：${text}`)
+                      return
+                    }
+                    if (contentType.includes("image")) {
+                      const blob = await res.blob()
+                      const url = URL.createObjectURL(blob)
+                      const link = document.createElement("a")
+                      link.href = url
+                      link.download = `idphoto_clothes_nw.${fileFormat}`
+                      link.click()
+                      URL.revokeObjectURL(url)
+                    } else {
+                      const text = await res.text()
+                      alert(`下载失败：返回的不是图片，内容：${text}`)
+                    }
+                  } catch (err) {
+                    alert("下载出错：" + err)
+                  }
+                }}
+                style={{
+                  padding: "8px 16px", borderRadius: 6, fontSize: 13, fontWeight: 500,
+                  border: "none", backgroundColor: "#2563eb",
+                  cursor: "pointer", color: "#fff",
+                }}
+              >
+                下载无水印原图（扣 20 点）
+              </button>
+            </div>
           </div>
         )}
 
@@ -476,24 +650,170 @@ export default function IdPhotoTest() {
           </div>
         )}
 
-        {/* Result preview */}
-        {resultPreview && (
-          <div style={{
-            borderRadius: 6, border: "1px solid #d0d5dd", padding: 16,
-          }}>
-            <h2 style={{ fontSize: 14, fontWeight: 600, marginBottom: 8 }}>换装结果预览</h2>
-            <img
-              src={resultPreview}
-              alt="换装结果"
-              style={{ maxHeight: 500, width: "auto", borderRadius: 6, boxShadow: "0 4px 12px rgba(0,0,0,0.15)" }}
+        {/* Manual photoid test */}
+        <hr style={{ border: "none", borderTop: "2px solid #f59e0b" }} />
+        <div style={{
+          borderRadius: 6, border: "1px solid #f59e0b", padding: 16,
+          backgroundColor: "#fffbeb",
+        }}>
+          <h2 style={{ fontSize: 14, fontWeight: 600, marginBottom: 8, color: "#92400e" }}>
+            调试：手动输入 photoid 测试下载
+          </h2>
+          <p style={{ fontSize: 12, color: "#6b7280", marginBottom: 8 }}>
+            已扣过点数的 photoid 不重复扣费，可反复测试
+          </p>
+          <div style={{ display: "flex", gap: 8, marginBottom: 8 }}>
+            <input
+              value={manualPhotoid}
+              onChange={(e) => setManualPhotoid(e.target.value)}
+              placeholder="粘贴 photoid..."
+              style={{
+                flex: 1, padding: "8px 12px", fontSize: 13, fontFamily: "monospace",
+                borderRadius: 6, border: "1px solid #d0d5dd",
+              }}
             />
-            <div style={{ marginTop: 12 }}>
-              <span style={{ fontSize: 12, color: "#6b7280" }}>
-                注：此为预览图（有水印）。如需下载无水印原图，需调用下载接口并消耗 20 点（约 0.2 元）
-              </span>
-            </div>
+            <button onClick={() => setManualPhotoid("647A7A7A73202020202020202020202020202020202020202020202020202020E2B4853FC53195D44202BB7FF76EBF9105B8D3E380D1BE7E3FD4CF38E9EF27CD9B2592B6DB8CF497671F5789893DED6E")} style={{padding:"4px 8px",borderRadius:4,border:"1px solid #d0d5dd",fontSize:11,cursor:"pointer",backgroundColor:"#fff"}} title="来自上次测试的证件照 photoid">📷 填充证件照</button>
+            <button onClick={() => setManualPhotoid("647A7A7A73202020202020202020202020202020202020202020202020202020E64ADA83A95CCF29CE03D7C45FA76CAF36C8556E3F783CA0AC6D1C13A5CDB5E2BE761BD880FCD0D0794311937454AB6F")} style={{padding:"4px 8px",borderRadius:4,border:"1px solid #d0d5dd",fontSize:11,cursor:"pointer",backgroundColor:"#fff"}} title="来自上次测试的换装 photoid">👔 填充换装</button>
+            <select
+              value={manualDownloadType}
+              onChange={(e) => setManualDownloadType(e.target.value as "clothes" | "idphoto")}
+              style={{
+                padding: "8px", borderRadius: 6, border: "1px solid #d0d5dd", fontSize: 13,
+              }}
+            >
+              <option value="clothes">换装下载</option>
+              <option value="idphoto">证件照下载</option>
+            </select>
           </div>
-        )}
+          <div style={{ display: "flex", gap: 8, marginBottom: 8 }}>
+            <input
+              value={extraParams}
+              onChange={(e) => setExtraParams(e.target.value)}
+              placeholder="额外参数 (如: clothes_id=1&color=white)"
+              style={{
+                flex: 1, padding: "8px 12px", fontSize: 13, fontFamily: "monospace",
+                borderRadius: 6, border: "1px solid #d0d5dd",
+              }}
+            />
+          </div>
+          <div style={{ display: "flex", gap: 8 }}>
+            <button
+              onClick={async () => {
+                if (!manualPhotoid || !apiKey) {
+                  alert("请填写 API Key 和 photoid")
+                  return
+                }
+                setDownloading(true)
+                setDownloadResult(null)
+                setDownloadImageUrl(null)
+                try {
+                  const params = new URLSearchParams({
+                    photoid: manualPhotoid,
+                    apiKey: apiKey,
+                    type: manualDownloadType,
+                  })
+                  if (extraParams) params.append("extra", extraParams)
+                  const res = await fetch(`/api/download?${params.toString()}`)
+                  const ct = res.headers.get("Content-Type") || ""
+                  if (ct.includes("image") && res.ok) {
+                    const blob = await res.blob()
+                    const url = URL.createObjectURL(blob)
+                    setDownloadImageUrl(url)
+                    setDownloadResult(`✅ 成功！大小: ${blob.size} bytes, 类型: ${ct}`)
+                    // auto-download
+                    const a = document.createElement("a")
+                    a.href = url
+                    a.download = `${manualDownloadType}_${Date.now()}.jpg`
+                    a.click()
+                  } else {
+                    const text = await res.text()
+                    setDownloadResult(`状态: ${res.status}\nContent-Type: ${ct}\n大小: ${text.length} bytes\n\n${text.slice(0, 500)}`)
+                  }
+                } catch (err) {
+                  setDownloadResult("出错: " + String(err))
+                } finally {
+                  setDownloading(false)
+                }
+              }}
+              disabled={downloading}
+              style={{
+                padding: "8px 16px", fontSize: 13, fontWeight: 500, borderRadius: 6,
+                border: "none", backgroundColor: "#f59e0b", color: "#fff",
+                cursor: downloading ? "not-allowed" : "pointer",
+              }}
+            >
+              {downloading ? "测试中..." : "测试下载"}
+            </button>
+            <button
+              onClick={async () => {
+                if (!manualPhotoid || !apiKey) {
+                  alert("请填写 API Key 和 photoid")
+                  return
+                }
+                setDownloading(true)
+                setDownloadResult(null)
+                setDownloadImageUrl(null)
+                try {
+                  let results = ""
+                  for (const t of [{label:"证件照下载", type:"idphoto"}, {label:"换装下载", type:"clothes"}]) {
+                    const params = new URLSearchParams({
+                      photoid: manualPhotoid,
+                      apiKey: apiKey,
+                      type: t.type,
+                    })
+                    if (extraParams) params.append("extra", extraParams)
+                    const res = await fetch(`/api/download?${params.toString()}`)
+                    const text = await res.text()
+                    results += `${t.label}: ${res.status}, ${text.length} bytes\n`
+                  }
+                  setDownloadResult(results)
+                } catch (err) {
+                  setDownloadResult("出错: " + String(err))
+                } finally {
+                  setDownloading(false)
+                }
+              }}
+              disabled={downloading}
+              style={{
+                padding: "8px 16px", fontSize: 13, fontWeight: 500, borderRadius: 6,
+                border: "1px solid #d0d5dd", backgroundColor: "#fff", color: "#374151",
+                cursor: downloading ? "not-allowed" : "pointer",
+              }}
+            >
+              同时测试两个接口
+            </button>
+          </div>
+          {downloadImageUrl && (
+            <div style={{ marginTop: 8 }}>
+              <img src={downloadImageUrl} alt="下载结果" style={{ maxHeight: 300, borderRadius: 6, boxShadow: "0 2px 8px rgba(0,0,0,0.15)" }} />
+              <div style={{ marginTop: 4 }}>
+                <button
+                  onClick={() => {
+                    const a = document.createElement("a")
+                    a.href = downloadImageUrl
+                    a.download = `${manualDownloadType}_${Date.now()}.jpg`
+                    a.click()
+                  }}
+                  style={{
+                    padding: "6px 12px", borderRadius: 6, fontSize: 12,
+                    border: "none", backgroundColor: "#2563eb", color: "#fff", cursor: "pointer",
+                  }}
+                >
+                  再次下载到本地
+                </button>
+              </div>
+            </div>
+          )}
+          {downloadResult && (
+            <pre style={{
+              marginTop: 8, padding: 8, borderRadius: 4, fontSize: 12,
+              backgroundColor: "#fefce8", color: "#713f12", overflowX: "auto",
+              whiteSpace: "pre-wrap",
+            }}>
+              {downloadResult}
+            </pre>
+          )}
+        </div>
       </div>
     </div>
   )

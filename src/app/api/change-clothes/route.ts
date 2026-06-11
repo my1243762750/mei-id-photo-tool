@@ -24,28 +24,43 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Image file, picurl, or photoid is required" }, { status: 400 })
     }
 
-    const remoteFormData = new FormData()
+    const params = new URLSearchParams()
     if (file) {
-      remoteFormData.append("file", file)
+      // 有文件上传时仍需用 FormData
+      const fd = new FormData()
+      fd.append("file", file)
+      if (picurl) fd.append("picurl", picurl)
+      if (photoid) fd.append("photoid", photoid)
+      fd.append("clothes_id", clothes_id ?? "1")
+      fd.append("width", width ?? "295")
+      fd.append("height", height ?? "413")
+      if (color) fd.append("color", color)
+      if (filetype) fd.append("filetype", filetype)
+
+      const clipRes = await fetch(DIANZIZHAO_API, {
+        method: "POST",
+        headers: { "X-API-KEY": apiKey },
+        body: fd,
+      })
+
+      const data = await clipRes.json()
+      return NextResponse.json(data)
     }
-    if (picurl) {
-      remoteFormData.append("picurl", picurl)
-    }
-    if (photoid) {
-      remoteFormData.append("photoid", photoid)
-    }
-    remoteFormData.append("clothes_id", clothes_id ?? "1")
-    remoteFormData.append("width", width ?? "295")
-    remoteFormData.append("height", height ?? "413")
-    if (color) remoteFormData.append("color", color)
-    if (filetype) remoteFormData.append("filetype", filetype)
+    if (picurl) params.append("picurl", picurl)
+    if (photoid) params.append("photoid", photoid)
+    params.append("clothes_id", clothes_id ?? "1")
+    params.append("width", width ?? "295")
+    params.append("height", height ?? "413")
+    if (color) params.append("color", color)
+    if (filetype) params.append("filetype", filetype)
 
     const clipRes = await fetch(DIANZIZHAO_API, {
       method: "POST",
       headers: {
         "X-API-KEY": apiKey,
+        "Content-Type": "application/x-www-form-urlencoded",
       },
-      body: remoteFormData,
+      body: params.toString(),
     })
 
     const data = await clipRes.json()
