@@ -47,7 +47,6 @@ export async function POST(req: NextRequest) {
       dpi: 300,
     }
 
-    console.log("[create-idphoto] payload size:", base64.length, "bytes")
     const clipRes = await fetch(CLIPIMG_API, {
       method: "POST",
       headers: {
@@ -57,9 +56,7 @@ export async function POST(req: NextRequest) {
       body: JSON.stringify(payload),
     })
 
-    const clipText = await clipRes.text()
-    console.log("[create-idphoto] ClipImg response:", clipRes.status, clipText.slice(0, 500))
-    const data = JSON.parse(clipText)
+    const data = await clipRes.json()
 
     if (data.code !== 0) {
       return NextResponse.json({ error: data.msg || "制作失败" }, { status: 400 })
