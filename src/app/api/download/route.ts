@@ -1,59 +1,36 @@
-import { NextRequest } from "next/server"
+import { NextRequest, NextResponse } from "next/server"
 
-const DIANZIZHAO_HOST = "https://www.dianzizhao.com"
+const API_KEY = "8hR2krd8tyKBPQDDGju6tDzovnlioJLk"
 
-async function proxyDownload(url: string, apiKey: string) {
-  const res = await fetch(url, {
-    method: "GET",
-    headers: { "X-API-Key": apiKey },
-  })
-  const buffer = await res.arrayBuffer()
+export async function POST(req: NextRequest) {
+  try {
+    const { download_url } = await req.json()
 
-  const headers: Record<string, string> = {}
-  res.headers.forEach((v, k) => { headers[k] = v })
-  console.log("[download] response headers:", JSON.stringify(headers))
+    if (!download_url) {
+      return NextResponse.json({ error: "download_url is required" }, { status: 400 })
+    }
 
-  const contentType = res.headers.get("Content-Type") || ""
-  console.log("[download] status:", res.status, "content-type:", contentType, "received bytes:", buffer.byteLength)
+    const res = await fetch(download_url, {
+      method: "POST",
+      headers: { "X-API-Key": API_KEY },
+    })
 
-  if (!res.ok) {
-    const text = new TextDecoder().decode(buffer)
-    return new Response(text || "error", { status: res.status, headers: { "Content-Type": contentType || "application/json" } })
-  }
+    const buffer = await res.arrayBuffer()
 
-  if (buffer.byteLength === 0) {
-    return new Response(JSON.stringify({
-      error: "API returned empty response (tried browser headers + minimal headers)",
-      response_headers: headers,
-    }), { status: 502, headers: { "Content-Type": "application/json" } })
-  }
+    if (!res.ok) {
+      const text = new TextDecoder().decode(buffer)
+      return new Response(text || "Download failed", { status: res.status })
+    }
 
-  if (contentType.includes("image")) {
+    const contentType = res.headers.get("Content-Type") || "image/jpeg"
+
     return new Response(buffer, {
-      headers: { "Content-Type": contentType, "Content-Disposition": `attachment; filename="idphoto.jpg"` },
+      headers: {
+        "Content-Type": contentType,
+        "Content-Disposition": `attachment; filename="idphoto.jpg"`,
+      },
     })
+  } catch (err) {
+    return NextResponse.json({ error: String(err) }, { status: 500 })
   }
-
-  const text = new TextDecoder().decode(buffer)
-  return new Response(text, { headers: { "Content-Type": contentType || "application/json" } })
-}
-
-export async function GET(req: NextRequest) {
-  const photoid = req.nextUrl.searchParams.get("photoid")
-  const apiKey = req.nextUrl.searchParams.get("apiKey")
-  const downloadType = req.nextUrl.searchParams.get("type") || "clothes"
-
-  if (!photoid || !apiKey) {
-    return new Response(JSON.stringify({ error: "photoid and apiKey are required" }), {
-      status: 400, headers: { "Content-Type": "application/json" },
-    })
-  }
-
-  const baseEndpoint = downloadType === "idphoto"
-    ? "/api/open/idphoto/download"
-    : "/api/open/changeclothes/download"
-
-  const url = `${DIANZIZHAO_HOST}${baseEndpoint}?photoid=${encodeURIComponent(photoid)}`
-
-  return proxyDownload(url, apiKey)
 }

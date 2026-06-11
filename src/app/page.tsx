@@ -24,30 +24,7 @@ const CLOTHES: ClothesItem[] = [
   { id: 13, label: "男装 13", group: "男装" },
   { id: 14, label: "男装 14", group: "男装" },
   { id: 15, label: "男装 15", group: "男装" },
-  { id: 101, label: "男装 101", group: "男装" },
-  { id: 102, label: "男装 102", group: "男装" },
-  { id: 103, label: "男装 103", group: "男装" },
-  { id: 104, label: "男装 104", group: "男装" },
-  { id: 105, label: "男装 105", group: "男装" },
-  { id: 106, label: "男装 106", group: "男装" },
-  { id: 107, label: "男装 107", group: "男装" },
-  { id: 108, label: "男装 108", group: "男装" },
-  { id: 109, label: "男装 109", group: "男装" },
-  { id: 110, label: "男装 110", group: "男装" },
-  { id: 111, label: "男装 111", group: "男装" },
-  { id: 112, label: "男装 112", group: "男装" },
-  { id: 113, label: "男装 113", group: "男装" },
-  { id: 114, label: "男装 114", group: "男装" },
-  { id: 115, label: "男装 115", group: "男装" },
-  { id: 116, label: "男装 116", group: "男装" },
-  { id: 117, label: "男装 117", group: "男装" },
-  { id: 118, label: "男装 118", group: "男装" },
-  { id: 119, label: "男装 119", group: "男装" },
-  { id: 120, label: "男装 120", group: "男装" },
-  { id: 121, label: "男装 121", group: "男装" },
-  { id: 122, label: "男装 122", group: "男装" },
-  { id: 123, label: "男装 123", group: "男装" },
-  { id: 16, label: "女装 16", group: "女装" },
+  { id: 16, label: "男装 16", group: "男装" },
   { id: 17, label: "女装 17", group: "女装" },
   { id: 18, label: "女装 18", group: "女装" },
   { id: 19, label: "女装 19", group: "女装" },
@@ -64,37 +41,6 @@ const CLOTHES: ClothesItem[] = [
   { id: 30, label: "女装 30", group: "女装" },
   { id: 31, label: "女装 31", group: "女装" },
   { id: 32, label: "女装 32", group: "女装" },
-  { id: 50, label: "女装 50", group: "女装" },
-  { id: 51, label: "女装 51", group: "女装" },
-  { id: 52, label: "女装 52", group: "女装" },
-  { id: 53, label: "女装 53", group: "女装" },
-  { id: 54, label: "女装 54", group: "女装" },
-  { id: 55, label: "女装 55", group: "女装" },
-  { id: 56, label: "女装 56", group: "女装" },
-  { id: 57, label: "女装 57", group: "女装" },
-  { id: 58, label: "女装 58", group: "女装" },
-  { id: 59, label: "女装 59", group: "女装" },
-  { id: 60, label: "女装 60", group: "女装" },
-  { id: 61, label: "女装 61", group: "女装" },
-  { id: 62, label: "女装 62", group: "女装" },
-  { id: 63, label: "女装 63", group: "女装" },
-  { id: 64, label: "女装 64", group: "女装" },
-  { id: 65, label: "女装 65", group: "女装" },
-  { id: 66, label: "女装 66", group: "女装" },
-  { id: 67, label: "女装 67", group: "女装" },
-  { id: 68, label: "女装 68", group: "女装" },
-  { id: 69, label: "女装 69", group: "女装" },
-  { id: 70, label: "女装 70", group: "女装" },
-  { id: 71, label: "女装 71", group: "女装" },
-  { id: 72, label: "女装 72", group: "女装" },
-  { id: 73, label: "女装 73", group: "女装" },
-  { id: 77, label: "女装 77", group: "女装" },
-  { id: 78, label: "女装 78", group: "女装" },
-  { id: 79, label: "女装 79", group: "女装" },
-  { id: 80, label: "女装 80", group: "女装" },
-  { id: 81, label: "女装 81", group: "女装" },
-  { id: 82, label: "女装 82", group: "女装" },
-  { id: 83, label: "女装 83", group: "女装" },
   { id: 33, label: "童装 33", group: "童装" },
   { id: 34, label: "童装 34", group: "童装" },
   { id: 35, label: "童装 35", group: "童装" },
@@ -111,16 +57,6 @@ const CLOTHES: ClothesItem[] = [
   { id: 46, label: "童装 46", group: "童装" },
   { id: 47, label: "童装 47", group: "童装" },
   { id: 48, label: "童装 48", group: "童装" },
-  { id: 201, label: "童装 201", group: "童装" },
-  { id: 202, label: "童装 202", group: "童装" },
-  { id: 203, label: "童装 203", group: "童装" },
-  { id: 204, label: "童装 204", group: "童装" },
-  { id: 205, label: "童装 205", group: "童装" },
-  { id: 206, label: "童装 206", group: "童装" },
-  { id: 207, label: "童装 207", group: "童装" },
-  { id: 208, label: "童装 208", group: "童装" },
-  { id: 209, label: "童装 209", group: "童装" },
-  { id: 210, label: "童装 210", group: "童装" },
 ]
 
 const BG_COLORS = [
@@ -136,13 +72,13 @@ const BG_COLORS = [
 ]
 
 export default function IdPhotoTest() {
-  const [apiKey, setApiKey] = useState("")
   const [clothesId, setClothesId] = useState(1)
   const [bgColor, setBgColor] = useState("white")
   const [fileFormat, setFileFormat] = useState("jpg")
   const [photoPreview, setPhotoPreview] = useState<string | null>(null)
   const [idphotoPreview, setIdphotoPreview] = useState<string | null>(null)
-  const [idphotoPhotoid, setIdphotoPhotoid] = useState<string | null>(null)
+  const [idphotoImgName, setIdphotoImgName] = useState<string | null>(null)
+  const [idphotoDownloadUrl, setIdphotoDownloadUrl] = useState<string | null>(null)
   const [resultPreview, setResultPreview] = useState<string | null>(null)
   const [result, setResult] = useState<any>(null)
   const [creating, setCreating] = useState(false)
@@ -150,12 +86,12 @@ export default function IdPhotoTest() {
   const [error, setError] = useState("")
   const [step1Error, setStep1Error] = useState("")
   const [step2Error, setStep2Error] = useState("")
-  const [manualPhotoid, setManualPhotoid] = useState("")
-  const [manualDownloadType, setManualDownloadType] = useState<"clothes" | "idphoto">("clothes")
+  const [manualImgName, setManualImgName] = useState("")
+  const [manualDownloadType, setManualDownloadType] = useState<"make" | "change_clothes">("change_clothes")
   const [downloadResult, setDownloadResult] = useState<string | null>(null)
   const [downloadImageUrl, setDownloadImageUrl] = useState<string | null>(null)
   const [downloading, setDownloading] = useState(false)
-  const [extraParams, setExtraParams] = useState("")
+  const [manualDownloadUrl, setManualDownloadUrl] = useState("")
   const fileRef = useRef<HTMLInputElement>(null)
 
   const selectedClothes = CLOTHES.find((c) => c.id === clothesId)
@@ -165,7 +101,8 @@ export default function IdPhotoTest() {
     if (file) {
       setPhotoPreview(URL.createObjectURL(file))
       setIdphotoPreview(null)
-      setIdphotoPhotoid(null)
+      setIdphotoImgName(null)
+      setIdphotoDownloadUrl(null)
       setResultPreview(null)
       setResult(null)
       setStep1Error("")
@@ -176,21 +113,19 @@ export default function IdPhotoTest() {
   }
 
   async function handleCreateIdPhoto() {
-    if (!apiKey) return setError("请输入 API Key")
     if (!fileRef.current?.files?.[0]) return setError("请上传照片")
 
     setError("")
     setStep1Error("")
     setCreating(true)
     setIdphotoPreview(null)
-    setIdphotoPhotoid(null)
+    setIdphotoImgName(null)
     setResultPreview(null)
     setResult(null)
 
     try {
       const file = fileRef.current.files[0]
       const formData = new FormData()
-      formData.append("apiKey", apiKey)
       formData.append("file", file)
       formData.append("color", bgColor)
       formData.append("filetype", fileFormat)
@@ -203,11 +138,12 @@ export default function IdPhotoTest() {
       const data = await res.json()
 
       if (data.code !== 0) {
-        setStep1Error(`制作失败：${data.msg || JSON.stringify(data)}`)
+        setStep1Error(`制作失败：${data.error || data.msg || JSON.stringify(data)}`)
         return
       }
 
-      setIdphotoPhotoid(data.photoid)
+      setIdphotoImgName(data.img_name)
+      setIdphotoDownloadUrl(data.download_url)
       if (data.image) {
         setIdphotoPreview(`data:image/${fileFormat};base64,${data.image}`)
       }
@@ -219,8 +155,7 @@ export default function IdPhotoTest() {
   }
 
   async function handleChangeClothes() {
-    if (!apiKey) return setError("请输入 API Key")
-    if (!idphotoPhotoid) return setError("请先制作证件照")
+    if (!idphotoImgName) return setError("请先制作证件照")
 
     setError("")
     setStep2Error("")
@@ -230,11 +165,8 @@ export default function IdPhotoTest() {
 
     try {
       const formData = new FormData()
-      formData.append("apiKey", apiKey)
-      formData.append("photoid", idphotoPhotoid)
+      formData.append("img_name", idphotoImgName)
       formData.append("clothes_id", String(clothesId))
-      formData.append("width", "295")
-      formData.append("height", "413")
       formData.append("color", bgColor)
       formData.append("filetype", fileFormat)
 
@@ -249,7 +181,7 @@ export default function IdPhotoTest() {
       if (data.code === 0 && data.image) {
         setResultPreview(`data:image/${fileFormat};base64,${data.image}`)
       } else {
-        setStep2Error(`换装失败：${data.msg || JSON.stringify(data)}`)
+        setStep2Error(`换装失败：${data.error || data.msg || JSON.stringify(data)}`)
       }
     } catch (err) {
       setStep2Error(String(err))
@@ -261,33 +193,13 @@ export default function IdPhotoTest() {
   return (
     <div style={{ maxWidth: 720, margin: "0 auto", padding: "32px 16px" }}>
       <h1 style={{ fontSize: 24, fontWeight: 700, marginBottom: 8 }}>
-        电子照助手 证件照换装测试
+        可立图 ClipImg 证件照换装测试
       </h1>
       <p style={{ fontSize: 13, color: "#6b7280", marginBottom: 24 }}>
-        两步流程：1. 制作证件照（免费）→ 2. 换装（免费预览，下载扣 20 点）
+        两步流程：1. 制作证件照（免费）→ 2. 换装（免费预览，下载扣 30 点）
       </p>
 
       <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-        {/* API Key */}
-        <div>
-          <label style={{ display: "block", fontSize: 14, fontWeight: 500, marginBottom: 6 }}>
-            API Key
-          </label>
-          <input
-            type="password"
-            value={apiKey}
-            onChange={(e) => setApiKey(e.target.value)}
-            placeholder="输入你的电子照助手 API Key"
-            style={{
-              width: "100%", padding: "8px 12px", fontSize: 14,
-              borderRadius: 6, border: "1px solid #d0d5dd", boxSizing: "border-box",
-            }}
-          />
-          <p style={{ fontSize: 12, color: "#6b7280", marginTop: 4 }}>
-            注册 dianzizhao.com 后在个人中心获取，新用户免费赠送 1000 点
-          </p>
-        </div>
-
         {/* Global error */}
         {error && (
           <div style={{
@@ -423,18 +335,30 @@ export default function IdPhotoTest() {
               alt="证件照"
               style={{ maxHeight: 300, width: "auto", borderRadius: 6 }}
             />
-            <p style={{ fontSize: 12, color: "#6b7280", marginTop: 8 }}>
-              photoid: {idphotoPhotoid?.slice(0, 50)}...
+            <p style={{ fontSize: 12, color: "#6b7280", marginTop: 8, wordBreak: "break-all" }}>
+              img_name: {idphotoImgName}
             </p>
             <button
               onClick={async () => {
-                if (!idphotoPhotoid) return
+                if (!idphotoDownloadUrl) return
                 try {
-                  const res = await fetch(
-                    `/api/download?photoid=${encodeURIComponent(idphotoPhotoid)}&apiKey=${encodeURIComponent(apiKey)}&type=idphoto`
-                  )
-                  const text = await res.text()
-                  alert(`证件照下载测试结果 (${res.status}):\n${text.slice(0, 500)}`)
+                  const res = await fetch("/api/download", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ download_url: idphotoDownloadUrl }),
+                  })
+                  if (res.ok) {
+                    const blob = await res.blob()
+                    const url = URL.createObjectURL(blob)
+                    const link = document.createElement("a")
+                    link.href = url
+                    link.download = `idphoto.${fileFormat}`
+                    link.click()
+                    URL.revokeObjectURL(url)
+                  } else {
+                    const text = await res.text()
+                    alert(`下载失败 (${res.status}): ${text}`)
+                  }
                 } catch (err) {
                   alert("下载出错：" + err)
                 }
@@ -450,7 +374,7 @@ export default function IdPhotoTest() {
         )}
 
         {/* Step 2 section - only show after step 1 */}
-        {idphotoPhotoid && (
+        {idphotoImgName && (
           <>
             <hr style={{ border: "none", borderTop: "1px solid #e5e7eb" }} />
 
@@ -594,31 +518,25 @@ export default function IdPhotoTest() {
               </button>
               <button
                 onClick={async () => {
-                  if (!result?.photoid) return
+                  if (!result?.download_url) return
                   try {
-                    const params = new URLSearchParams({
-                      photoid: result.photoid,
-                      apiKey: apiKey,
+                    const res = await fetch("/api/download", {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({ download_url: result.download_url }),
                     })
-                    const res = await fetch(`/api/download?${params.toString()}`)
-                    const contentType = res.headers.get("Content-Type") || ""
                     if (!res.ok) {
                       const text = await res.text()
                       alert(`下载失败 (${res.status})：${text}`)
                       return
                     }
-                    if (contentType.includes("image")) {
-                      const blob = await res.blob()
-                      const url = URL.createObjectURL(blob)
-                      const link = document.createElement("a")
-                      link.href = url
-                      link.download = `idphoto_clothes_nw.${fileFormat}`
-                      link.click()
-                      URL.revokeObjectURL(url)
-                    } else {
-                      const text = await res.text()
-                      alert(`下载失败：返回的不是图片，内容：${text}`)
-                    }
+                    const blob = await res.blob()
+                    const url = URL.createObjectURL(blob)
+                    const link = document.createElement("a")
+                    link.href = url
+                    link.download = `idphoto_clothes_nw.${fileFormat}`
+                    link.click()
+                    URL.revokeObjectURL(url)
                   } catch (err) {
                     alert("下载出错：" + err)
                   }
@@ -629,7 +547,7 @@ export default function IdPhotoTest() {
                   cursor: "pointer", color: "#fff",
                 }}
               >
-                下载无水印原图（扣 20 点）
+                下载无水印原图（扣 30 点）
               </button>
             </div>
           </div>
@@ -650,46 +568,23 @@ export default function IdPhotoTest() {
           </div>
         )}
 
-        {/* Manual photoid test */}
+        {/* Manual download test */}
         <hr style={{ border: "none", borderTop: "2px solid #f59e0b" }} />
         <div style={{
           borderRadius: 6, border: "1px solid #f59e0b", padding: 16,
           backgroundColor: "#fffbeb",
         }}>
           <h2 style={{ fontSize: 14, fontWeight: 600, marginBottom: 8, color: "#92400e" }}>
-            调试：手动输入 photoid 测试下载
+            调试：手动输入 download_url 测试下载
           </h2>
           <p style={{ fontSize: 12, color: "#6b7280", marginBottom: 8 }}>
-            已扣过点数的 photoid 不重复扣费，可反复测试
+            粘贴从 API 响应中复制的 download_url，相同的 url 不重复扣费
           </p>
           <div style={{ display: "flex", gap: 8, marginBottom: 8 }}>
             <input
-              value={manualPhotoid}
-              onChange={(e) => setManualPhotoid(e.target.value)}
-              placeholder="粘贴 photoid..."
-              style={{
-                flex: 1, padding: "8px 12px", fontSize: 13, fontFamily: "monospace",
-                borderRadius: 6, border: "1px solid #d0d5dd",
-              }}
-            />
-            <button onClick={() => setManualPhotoid("647A7A7A73202020202020202020202020202020202020202020202020202020E2B4853FC53195D44202BB7FF76EBF9105B8D3E380D1BE7E3FD4CF38E9EF27CD9B2592B6DB8CF497671F5789893DED6E")} style={{padding:"4px 8px",borderRadius:4,border:"1px solid #d0d5dd",fontSize:11,cursor:"pointer",backgroundColor:"#fff"}} title="来自上次测试的证件照 photoid">📷 填充证件照</button>
-            <button onClick={() => setManualPhotoid("647A7A7A73202020202020202020202020202020202020202020202020202020E64ADA83A95CCF29CE03D7C45FA76CAF36C8556E3F783CA0AC6D1C13A5CDB5E2BE761BD880FCD0D0794311937454AB6F")} style={{padding:"4px 8px",borderRadius:4,border:"1px solid #d0d5dd",fontSize:11,cursor:"pointer",backgroundColor:"#fff"}} title="来自上次测试的换装 photoid">👔 填充换装</button>
-            <select
-              value={manualDownloadType}
-              onChange={(e) => setManualDownloadType(e.target.value as "clothes" | "idphoto")}
-              style={{
-                padding: "8px", borderRadius: 6, border: "1px solid #d0d5dd", fontSize: 13,
-              }}
-            >
-              <option value="clothes">换装下载</option>
-              <option value="idphoto">证件照下载</option>
-            </select>
-          </div>
-          <div style={{ display: "flex", gap: 8, marginBottom: 8 }}>
-            <input
-              value={extraParams}
-              onChange={(e) => setExtraParams(e.target.value)}
-              placeholder="额外参数 (如: clothes_id=1&color=white)"
+              value={manualDownloadUrl}
+              onChange={(e) => setManualDownloadUrl(e.target.value)}
+              placeholder="粘贴 download_url..."
               style={{
                 flex: 1, padding: "8px 12px", fontSize: 13, fontFamily: "monospace",
                 borderRadius: 6, border: "1px solid #d0d5dd",
@@ -699,31 +594,28 @@ export default function IdPhotoTest() {
           <div style={{ display: "flex", gap: 8 }}>
             <button
               onClick={async () => {
-                if (!manualPhotoid || !apiKey) {
-                  alert("请填写 API Key 和 photoid")
+                if (!manualDownloadUrl) {
+                  alert("请填写 download_url")
                   return
                 }
                 setDownloading(true)
                 setDownloadResult(null)
                 setDownloadImageUrl(null)
                 try {
-                  const params = new URLSearchParams({
-                    photoid: manualPhotoid,
-                    apiKey: apiKey,
-                    type: manualDownloadType,
+                  const res = await fetch("/api/download", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ download_url: manualDownloadUrl }),
                   })
-                  if (extraParams) params.append("extra", extraParams)
-                  const res = await fetch(`/api/download?${params.toString()}`)
                   const ct = res.headers.get("Content-Type") || ""
-                  if (ct.includes("image") && res.ok) {
+                  if (res.ok && ct.includes("image")) {
                     const blob = await res.blob()
                     const url = URL.createObjectURL(blob)
                     setDownloadImageUrl(url)
                     setDownloadResult(`✅ 成功！大小: ${blob.size} bytes, 类型: ${ct}`)
-                    // auto-download
                     const a = document.createElement("a")
                     a.href = url
-                    a.download = `${manualDownloadType}_${Date.now()}.jpg`
+                    a.download = `download_${Date.now()}.jpg`
                     a.click()
                   } else {
                     const text = await res.text()
@@ -743,44 +635,6 @@ export default function IdPhotoTest() {
               }}
             >
               {downloading ? "测试中..." : "测试下载"}
-            </button>
-            <button
-              onClick={async () => {
-                if (!manualPhotoid || !apiKey) {
-                  alert("请填写 API Key 和 photoid")
-                  return
-                }
-                setDownloading(true)
-                setDownloadResult(null)
-                setDownloadImageUrl(null)
-                try {
-                  let results = ""
-                  for (const t of [{label:"证件照下载", type:"idphoto"}, {label:"换装下载", type:"clothes"}]) {
-                    const params = new URLSearchParams({
-                      photoid: manualPhotoid,
-                      apiKey: apiKey,
-                      type: t.type,
-                    })
-                    if (extraParams) params.append("extra", extraParams)
-                    const res = await fetch(`/api/download?${params.toString()}`)
-                    const text = await res.text()
-                    results += `${t.label}: ${res.status}, ${text.length} bytes\n`
-                  }
-                  setDownloadResult(results)
-                } catch (err) {
-                  setDownloadResult("出错: " + String(err))
-                } finally {
-                  setDownloading(false)
-                }
-              }}
-              disabled={downloading}
-              style={{
-                padding: "8px 16px", fontSize: 13, fontWeight: 500, borderRadius: 6,
-                border: "1px solid #d0d5dd", backgroundColor: "#fff", color: "#374151",
-                cursor: downloading ? "not-allowed" : "pointer",
-              }}
-            >
-              同时测试两个接口
             </button>
           </div>
           {downloadImageUrl && (

@@ -1,70 +1,77 @@
 import { NextRequest, NextResponse } from "next/server"
 
-const DIANZIZHAO_API = "https://www.dianzizhao.com/api/open/changeclothes"
+const CLIPIMG_API = "https://www.clipimg.com/api/idphoto/change_clothes"
+const API_KEY = "8hR2krd8tyKBPQDDGju6tDzovnlioJLk"
+
+const COLOR_MAP: Record<string, string> = {
+  white: "#FFFFFF",
+  red: "#FF0000",
+  dark_red: "#CC0000",
+  blue: "#438EDB",
+  tint: "#4DB8FF",
+  dark_blue: "#003399",
+  gray: "#999999",
+}
 
 export async function POST(req: NextRequest) {
   try {
     const formData = await req.formData()
-    const apiKey = formData.get("apiKey") as string
-    const clothes_id = formData.get("clothes_id") as string
-    const width = formData.get("width") as string
-    const height = formData.get("height") as string
-    const color = formData.get("color") as string
-    const filetype = formData.get("filetype") as string
+    const imgName = formData.get("img_name") as string
+    const clothesId = formData.get("clothes_id") as string
+    const color = formData.get("color") as string || "white"
+    const filetype = formData.get("filetype") as string || "jpg"
 
-    if (!apiKey) {
-      return NextResponse.json({ error: "API Key is required" }, { status: 400 })
+    if (!imgName || !clothesId) {
+      return NextResponse.json({ error: "img_name and clothes_id are required" }, { status: 400 })
     }
 
-    const file = formData.get("file") as File | null
-    const picurl = formData.get("picurl") as string | null
-    const photoid = formData.get("photoid") as string | null
+    let bgColorValue = "#FFFFFF"
+    let encColorValue = ""
 
-    if (!file && !picurl && !photoid) {
-      return NextResponse.json({ error: "Image file, picurl, or photoid is required" }, { status: 400 })
+    if (color.includes(",")) {
+      const parts = color.split(",")
+      bgColorValue = parts[0].trim()
+      encColorValue = parts[1].trim()
+    } else {
+      bgColorValue = COLOR_MAP[color] || (color.startsWith("#") ? color : `#${color}`) || "#FFFFFF"
     }
 
-    const params = new URLSearchParams()
-    if (file) {
-      // 有文件上传时仍需用 FormData
-      const fd = new FormData()
-      fd.append("file", file)
-      if (picurl) fd.append("picurl", picurl)
-      if (photoid) fd.append("photoid", photoid)
-      fd.append("clothes_id", clothes_id ?? "1")
-      fd.append("width", width ?? "295")
-      fd.append("height", height ?? "413")
-      if (color) fd.append("color", color)
-      if (filetype) fd.append("filetype", filetype)
-
-      const clipRes = await fetch(DIANZIZHAO_API, {
-        method: "POST",
-        headers: { "X-API-KEY": apiKey },
-        body: fd,
-      })
-
-      const data = await clipRes.json()
-      return NextResponse.json(data)
+    const payload: Record<string, any> = {
+      img_name: imgName,
+      clothes_id: parseInt(clothesId, 10),
+      bg_color: bgColorValue,
+      file_format: filetype === "png" ? 0 : 1,
     }
-    if (picurl) params.append("picurl", picurl)
-    if (photoid) params.append("photoid", photoid)
-    params.append("clothes_id", clothes_id ?? "1")
-    params.append("width", width ?? "295")
-    params.append("height", height ?? "413")
-    if (color) params.append("color", color)
-    if (filetype) params.append("filetype", filetype)
 
-    const clipRes = await fetch(DIANZIZHAO_API, {
+    if (encColorValue) {
+      payload.enc_color = encColorValue
+    }
+
+    const clipRes = await fetch(CLIPIMG_API, {
       method: "POST",
       headers: {
-        "X-API-KEY": apiKey,
-        "Content-Type": "application/x-www-form-urlencoded",
+        "X-API-Key": API_KEY,
+        "Content-Type": "application/json",
       },
-      body: params.toString(),
+      body: JSON.stringify(payload),
     })
 
     const data = await clipRes.json()
-    return NextResponse.json(data)
+
+    if (data.code !== 0) {
+      return NextResponse.json({ error: data.msg || "换装失败" }, { status: 400 })
+    }
+
+    const previewRes = await fetch(data.data.preview_url)
+    const previewBuffer = await previewRes.arrayBuffer()
+    const previewBase64 = Buffer.from(previewBuffer).toString("base64")
+
+    return NextResponse.json({
+      code: 0,
+      image: previewBase64,
+      img_name: data.data.img_name,
+      download_url: data.data.download_url,
+    })
   } catch (err) {
     return NextResponse.json({ error: String(err) }, { status: 500 })
   }
