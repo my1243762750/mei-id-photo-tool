@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 
-const API_KEY = "8hR2krd8tyKBPQDDGju6tDzovnlioJLk"
+import { CLIPIMG_API_KEY } from "../../../lib/config"
 
 export async function POST(req: NextRequest) {
   try {
@@ -12,7 +12,7 @@ export async function POST(req: NextRequest) {
 
     const res = await fetch(download_url, {
       method: "POST",
-      headers: { "X-API-Key": API_KEY },
+      headers: { "X-API-Key": CLIPIMG_API_KEY },
     })
 
     const buffer = await res.arrayBuffer()

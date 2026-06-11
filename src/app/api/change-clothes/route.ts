@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server"
 
+import { CLIPIMG_API_KEY } from "../../../lib/config"
+
 const CLIPIMG_API = "https://www.clipimg.com/api/idphoto/change_clothes"
-const API_KEY = "8hR2krd8tyKBPQDDGju6tDzovnlioJLk"
 
 const COLOR_MAP: Record<string, string> = {
   white: "#FFFFFF",
@@ -50,7 +51,7 @@ export async function POST(req: NextRequest) {
     const clipRes = await fetch(CLIPIMG_API, {
       method: "POST",
       headers: {
-        "X-API-Key": API_KEY,
+        "X-API-Key": CLIPIMG_API_KEY,
         "Content-Type": "application/json",
       },
       body: JSON.stringify(payload),
