@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useRef } from "react"
+import { useState, useRef, useEffect } from "react"
 
 interface ClothesItem {
   id: number
@@ -81,15 +81,43 @@ export default function IdPhotoTest() {
   const [resultDownloadUrl, setResultDownloadUrl] = useState<string | null>(null)
   const [creating, setCreating] = useState(false)
   const [changing, setChanging] = useState(false)
-  const [error, setError] = useState("")
-  const [step1Error, setStep1Error] = useState("")
-  const [step2Error, setStep2Error] = useState("")
   
-  // NEW: Controller for active display in Hero area
+  // Refined Toast State
+  const [toast, setToast] = useState<{ msg: string; type: "error" | "info" } | null>(null)
+  
+  // API Key State
+  const [userApiKey, setUserApiKey] = useState("")
+  const [showSettings, setShowSettings] = useState(false)
+  const [showKey, setShowKey] = useState(false) // Toggle visibility
+  
+  // Controller for active display in Hero area
   const [activeDisplay, setActiveDisplay] = useState<"original" | "idphoto" | "result">("original")
   
   const fileRef = useRef<HTMLInputElement>(null)
   const selectedClothes = CLOTHES.find((c) => c.id === clothesId)
+
+  // Auto-hide toast
+  useEffect(() => {
+    if (toast) {
+      const timer = setTimeout(() => setToast(null), 3000)
+      return () => clearTimeout(timer)
+    }
+  }, [toast])
+
+  // Load API Key from localStorage on mount
+  useEffect(() => {
+    const savedKey = localStorage.getItem("clipimg_api_key")
+    if (savedKey) {
+      setUserApiKey(savedKey)
+    } else {
+      setShowSettings(true)
+    }
+  }, [])
+
+  function handleSaveApiKey(val: string) {
+    setUserApiKey(val)
+    localStorage.setItem("clipimg_api_key", val)
+  }
 
   function handleFileChange() {
     const file = fileRef.current?.files?.[0]
@@ -100,8 +128,6 @@ export default function IdPhotoTest() {
       setIdphotoDownloadUrl(null)
       setResultPreview(null)
       setResultDownloadUrl(null)
-      setStep1Error("")
-      setStep2Error("")
       setActiveDisplay("original")
     } else {
       setPhotoPreview(null)
@@ -109,10 +135,8 @@ export default function IdPhotoTest() {
   }
 
   async function handleCreateIdPhoto() {
-    if (!fileRef.current?.files?.[0]) return setError("请上传一张照片以开始")
+    if (!fileRef.current?.files?.[0]) return setToast({ msg: "请上传一张照片以开始", type: "error" })
 
-    setError("")
-    setStep1Error("")
     setCreating(true)
 
     try {
@@ -124,13 +148,14 @@ export default function IdPhotoTest() {
 
       const res = await fetch("/api/create-idphoto", {
         method: "POST",
+        headers: { "x-api-key": userApiKey },
         body: formData,
       })
 
       const data = await res.json()
 
       if (data.code !== 0) {
-        setStep1Error(`制作失败：${data.error || data.msg || JSON.stringify(data)}`)
+        setToast({ msg: `制作失败：${data.error || data.msg}`, type: "error" })
         return
       }
 
@@ -138,20 +163,18 @@ export default function IdPhotoTest() {
       setIdphotoDownloadUrl(data.download_url)
       if (data.image) {
         setIdphotoPreview(`data:image/${fileFormat};base64,${data.image}`)
-        setActiveDisplay("idphoto") // Switch focus to result
+        setActiveDisplay("idphoto")
       }
     } catch (err) {
-      setStep1Error(String(err))
+      setToast({ msg: String(err), type: "error" })
     } finally {
       setCreating(false)
     }
   }
 
   async function handleChangeClothes() {
-    if (!idphotoImgName) return setError("请先完成步骤 1：制作证件照")
+    if (!idphotoImgName) return setToast({ msg: "请先完成步骤 1", type: "error" })
 
-    setError("")
-    setStep2Error("")
     setChanging(true)
 
     try {
@@ -163,6 +186,7 @@ export default function IdPhotoTest() {
 
       const res = await fetch("/api/change-clothes", {
         method: "POST",
+        headers: { "x-api-key": userApiKey },
         body: formData,
       })
 
@@ -171,18 +195,17 @@ export default function IdPhotoTest() {
       if (data.code === 0 && data.image) {
         setResultPreview(`data:image/${fileFormat};base64,${data.image}`)
         setResultDownloadUrl(data.download_url)
-        setActiveDisplay("result") // Switch focus to final result
+        setActiveDisplay("result")
       } else {
-        setStep2Error(`换装失败：${data.error || data.msg || JSON.stringify(data)}`)
+        setToast({ msg: `换装失败：${data.error || data.msg}`, type: "error" })
       }
     } catch (err) {
-      setStep2Error(String(err))
+      setToast({ msg: String(err), type: "error" })
     } finally {
       setChanging(false)
     }
   }
 
-  // Get current active image URL
   const heroImage = 
     activeDisplay === "result" && resultPreview ? resultPreview :
     activeDisplay === "idphoto" && idphotoPreview ? idphotoPreview :
@@ -197,7 +220,24 @@ export default function IdPhotoTest() {
       flexDirection: "column",
       gap: "var(--mei-spacing-stack-2xl)"
     }}>
-      <header style={{ textAlign: "center" }}>
+      <header style={{ textAlign: "center", position: "relative" }}>
+        {/* Settings Toggle */}
+        <button 
+          onClick={() => setShowSettings(!showSettings)}
+          style={{
+            position: "absolute", top: 0, right: 0,
+            padding: "8px 12px", borderRadius: "var(--mei-radius-lg)",
+            border: "1px solid var(--mei-border-default)", backgroundColor: "var(--mei-bg-elevated)",
+            cursor: "pointer", fontSize: "var(--mei-font-xs)", color: "var(--mei-text-secondary)",
+            display: "flex", alignItems: "center", gap: 6,
+            transition: "all var(--mei-motion-fast)"
+          }}
+          onMouseOver={(e) => e.currentTarget.style.borderColor = "var(--mei-color-primary-300)"}
+          onMouseOut={(e) => e.currentTarget.style.borderColor = "var(--mei-border-default)"}
+        >
+          {showSettings ? "收起配置" : "API 设置"} ⚙️
+        </button>
+
         <h1 style={{
           fontSize: "var(--mei-font-4xl)",
           fontWeight: "var(--mei-weight-bold)",
@@ -213,12 +253,84 @@ export default function IdPhotoTest() {
         <p style={{
           fontSize: "var(--mei-font-base)",
           color: "var(--mei-text-secondary)",
-          maxWidth: 480,
+          maxWidth: 600,
           margin: "0 auto"
         }}>
-          专业级 AI 换装工具。支持生活照转证件照、背景色切换与正装替换。
+          AI 智能抠图、背景切换与专业换装，让生活照秒变正装照。
         </p>
       </header>
+
+      {/* API Settings Card */}
+      {showSettings && (
+        <section style={{
+          backgroundColor: "var(--mei-bg-surface)",
+          border: "1px solid var(--mei-color-primary-100)",
+          borderRadius: "var(--mei-radius-xl)",
+          padding: "var(--mei-spacing-inset-xl)",
+          boxShadow: "var(--mei-shadow-sm)",
+          animation: "slideDown var(--mei-motion-normal) ease-out"
+        }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", gap: "var(--mei-spacing-inline-xl)" }}>
+            <div style={{ flex: 1 }}>
+              <label style={{
+                display: "block", fontSize: "var(--mei-font-xs)", fontWeight: "var(--mei-weight-bold)",
+                color: "var(--mei-color-primary-600)", marginBottom: "var(--mei-spacing-stack-sm)",
+                textTransform: "uppercase"
+              }}>ClipImg API Key</label>
+              <div style={{ position: "relative" }}>
+                <input 
+                  type={showKey ? "text" : "password"}
+                  value={userApiKey}
+                  onChange={(e) => handleSaveApiKey(e.target.value)}
+                  placeholder="在此粘贴你的 32 位 API Key"
+                  style={{
+                    width: "100%", height: 44, padding: "0 44px 0 var(--mei-spacing-inset-md)",
+                    borderRadius: "var(--mei-radius-lg)", border: "1px solid var(--mei-border-default)",
+                    fontSize: "var(--mei-font-sm)", backgroundColor: "var(--mei-bg-elevated)",
+                    outline: "none", transition: "border-color var(--mei-motion-fast)"
+                  }}
+                  onFocus={(e) => e.target.style.borderColor = "var(--mei-color-primary-400)"}
+                  onBlur={(e) => e.target.style.borderColor = "var(--mei-border-default)"}
+                />
+                <button 
+                  onClick={() => setShowKey(!showKey)}
+                  style={{
+                    position: "absolute", right: 8, top: "50%", transform: "translateY(-50%)",
+                    border: "none", backgroundColor: "transparent", cursor: "pointer",
+                    display: "flex", alignItems: "center", padding: 8, color: "var(--mei-text-tertiary)"
+                  }}
+                >
+                  {showKey ? (
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
+                  ) : (
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                  )}
+                </button>
+              </div>
+            </div>
+            <div style={{ paddingBottom: 10 }}>
+              <a 
+                href="https://www.clipimg.com/" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                style={{
+                  fontSize: "var(--mei-font-sm)", color: "var(--mei-color-primary-600)",
+                  textDecoration: "none", fontWeight: "var(--mei-weight-semibold)",
+                  borderBottom: "1px solid var(--mei-color-primary-200)"
+                }}
+              >
+                还没有 Key？官网免费获取 →
+              </a>
+            </div>
+          </div>
+          <div style={{ marginTop: 12, display: "flex", alignItems: "center", gap: 6 }}>
+            <span style={{ fontSize: "var(--mei-font-xs)", color: "var(--mei-color-success-base)" }}>🛡️ 安全加密</span>
+            <span style={{ fontSize: "var(--mei-font-xs)", color: "var(--mei-text-tertiary)" }}>
+              你的 Key 仅保存在浏览器本地，预览前两步不消耗余额。
+            </span>
+          </div>
+        </section>
+      )}
 
       {/* Main Grid */}
       <div style={{
@@ -252,7 +364,7 @@ export default function IdPhotoTest() {
                 backgroundColor: "var(--mei-color-primary-500)", color: "var(--mei-text-inverse)",
                 display: "flex", alignItems: "center", justifyContent: "center", fontSize: "var(--mei-font-sm)"
               }}>1</span>
-              上传并配置
+              上传照片
             </h2>
 
             <div style={{ display: "flex", flexDirection: "column", gap: "var(--mei-spacing-stack-xl)" }}>
@@ -268,8 +380,6 @@ export default function IdPhotoTest() {
                   transition: "all var(--mei-motion-fast)"
                 }} 
                 onClick={() => fileRef.current?.click()}
-                onMouseOver={(e) => e.currentTarget.style.borderColor = "var(--mei-color-primary-400)"}
-                onMouseOut={(e) => e.currentTarget.style.borderColor = photoPreview ? "var(--mei-color-primary-200)" : "var(--mei-border-default)"}
               >
                 <input
                   ref={fileRef} type="file" accept="image/*"
@@ -307,13 +417,13 @@ export default function IdPhotoTest() {
                 </div>
               </div>
 
-              {/* Format Select */}
+              {/* Action */}
               <div style={{ display: "flex", gap: "var(--mei-spacing-inline-lg)", alignItems: "flex-end" }}>
                 <div style={{ flex: 1 }}>
                   <label style={{
                     display: "block", fontSize: "var(--mei-font-xs)", fontWeight: "var(--mei-weight-bold)",
                     color: "var(--mei-text-tertiary)", textTransform: "uppercase", marginBottom: "var(--mei-spacing-stack-sm)"
-                  }}>输出格式</label>
+                  }}>格式</label>
                   <div style={{ display: "flex", gap: 4, backgroundColor: "var(--mei-bg-surface)", padding: 4, borderRadius: "var(--mei-radius-lg)" }}>
                     {["jpg", "png"].map((f) => {
                       const isActive = fileFormat === f
@@ -325,7 +435,7 @@ export default function IdPhotoTest() {
                             fontSize: "var(--mei-font-xs)", fontWeight: "var(--mei-weight-bold)", textTransform: "uppercase",
                             backgroundColor: isActive ? "var(--mei-bg-elevated)" : "transparent",
                             color: isActive ? "var(--mei-color-primary-600)" : "var(--mei-text-tertiary)",
-                            boxShadow: isActive ? "var(--mei-shadow-sm)" : "none", cursor: "pointer",
+                            cursor: "pointer", transition: "all var(--mei-motion-fast)"
                           }}
                         >
                           {f}
@@ -338,29 +448,22 @@ export default function IdPhotoTest() {
                   onClick={handleCreateIdPhoto}
                   disabled={creating || !photoPreview}
                   style={{
-                    flex: 1, height: 44,
+                    flex: 1.5, height: 44,
                     borderRadius: "var(--mei-radius-lg)", border: "none",
                     backgroundColor: creating ? "var(--mei-color-primary-300)" : (photoPreview ? "var(--mei-color-primary-500)" : "var(--mei-color-neutral-200)"),
                     color: "var(--mei-text-inverse)", fontWeight: "var(--mei-weight-bold)",
                     cursor: (creating || !photoPreview) ? "not-allowed" : "pointer",
                     boxShadow: (creating || !photoPreview) ? "none" : "var(--mei-shadow-md)",
+                    transition: "all var(--mei-motion-fast)"
                   }}
                 >
-                  {creating ? "处理中..." : "制作证件照"}
+                  {creating ? "正在处理..." : "生成证件照"}
                 </button>
               </div>
             </div>
-            
-            {step1Error && (
-              <div style={{
-                marginTop: "var(--mei-spacing-stack-md)", padding: "var(--mei-spacing-inset-md)",
-                borderRadius: "var(--mei-radius-md)", backgroundColor: "var(--mei-color-error-light)",
-                fontSize: "var(--mei-font-xs)", color: "var(--mei-color-error-dark)"
-              }}>{step1Error}</div>
-            )}
           </section>
 
-          {/* Card 2: Clothes (Only show if ID photo created) */}
+          {/* Card 2: Clothes */}
           {idphotoImgName && (
             <section style={{
               backgroundColor: "var(--mei-bg-elevated)",
@@ -406,7 +509,7 @@ export default function IdPhotoTest() {
                           fontSize: "var(--mei-font-xs)", fontWeight: "var(--mei-weight-bold)",
                           backgroundColor: isActive ? "var(--mei-bg-elevated)" : "transparent",
                           color: isActive ? "var(--mei-color-primary-600)" : "var(--mei-text-tertiary)",
-                          boxShadow: isActive ? "var(--mei-shadow-sm)" : "none", cursor: "pointer",
+                          cursor: "pointer",
                         }}
                       >
                         {group}
@@ -453,18 +556,12 @@ export default function IdPhotoTest() {
                     color: "var(--mei-text-inverse)", fontWeight: "var(--mei-weight-bold)",
                     cursor: changing ? "not-allowed" : "pointer",
                     boxShadow: changing ? "none" : "var(--mei-shadow-md)",
+                    transition: "all var(--mei-motion-fast)"
                   }}
                 >
-                  {changing ? "正在换装..." : "执行换装魔法"}
+                  {changing ? "换装中..." : "一键换装"}
                 </button>
               </div>
-              {step2Error && (
-                <div style={{
-                  marginTop: "var(--mei-spacing-stack-md)", padding: "var(--mei-spacing-inset-md)",
-                  borderRadius: "var(--mei-radius-md)", backgroundColor: "var(--mei-color-error-light)",
-                  fontSize: "var(--mei-font-xs)", color: "var(--mei-color-error-dark)"
-                }}>{step2Error}</div>
-              )}
             </section>
           )}
         </div>
@@ -488,7 +585,7 @@ export default function IdPhotoTest() {
                 color: "var(--mei-text-tertiary)", textTransform: "uppercase",
                 letterSpacing: "var(--mei-letter-spacing-wide)"
               }}>
-                成果展示区
+                预览区域
               </h3>
             </header>
 
@@ -516,20 +613,18 @@ export default function IdPhotoTest() {
                 </div>
               )}
               
-              {/* Overlay Label */}
               <div style={{
                 position: "absolute", top: 12, right: 12,
                 padding: "4px 12px", borderRadius: "var(--mei-radius-full)",
                 backgroundColor: "rgba(26, 26, 46, 0.7)", backdropFilter: "blur(8px)",
                 color: "#fff", fontSize: "var(--mei-font-xs)", fontWeight: "var(--mei-weight-medium)"
               }}>
-                {activeDisplay === "result" ? "最终换装" : (activeDisplay === "idphoto" ? "纯净证件照" : "原始素材")}
+                {activeDisplay === "result" ? "最终换装" : (activeDisplay === "idphoto" ? "证件照成果" : "原始照片")}
               </div>
             </div>
 
             {/* Gallery Strip */}
             <div style={{ display: "flex", gap: "var(--mei-spacing-inline-md)", justifyContent: "center" }}>
-              {/* Slot 1: Original */}
               {photoPreview && (
                 <button 
                   onClick={() => setActiveDisplay("original")}
@@ -544,7 +639,6 @@ export default function IdPhotoTest() {
                 </button>
               )}
               
-              {/* Slot 2: ID Photo */}
               {idphotoPreview && (
                 <button 
                   onClick={() => setActiveDisplay("idphoto")}
@@ -559,7 +653,6 @@ export default function IdPhotoTest() {
                 </button>
               )}
 
-              {/* Slot 3: Result */}
               {resultPreview && (
                 <button 
                   onClick={() => setActiveDisplay("result")}
@@ -580,12 +673,20 @@ export default function IdPhotoTest() {
               <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
                 <button
                   onClick={async () => {
-                    // Logic to download based on what's active OR both if available
+                    if (!userApiKey) {
+                      setToast({ msg: "请先设置 API Key 以进行下载", type: "error" })
+                      setShowSettings(true)
+                      return
+                    }
                     const url = activeDisplay === "result" ? resultDownloadUrl : (activeDisplay === "idphoto" ? idphotoDownloadUrl : null);
                     if (!url) return;
                     try {
                       const res = await fetch("/api/download", {
-                        method: "POST", headers: { "Content-Type": "application/json" },
+                        method: "POST", 
+                        headers: { 
+                          "Content-Type": "application/json",
+                          "x-api-key": userApiKey 
+                        },
                         body: JSON.stringify({ download_url: url }),
                       })
                       if (res.ok) {
@@ -595,8 +696,11 @@ export default function IdPhotoTest() {
                         link.href = dUrl
                         link.download = activeDisplay === "result" ? `clothes_${clothesId}.${fileFormat}` : `idphoto.${fileFormat}`
                         link.click()
+                      } else {
+                        const data = await res.json()
+                        setToast({ msg: data.error || "下载失败", type: "error" })
                       }
-                    } catch (err) { alert("下载出错") }
+                    } catch (err) { setToast({ msg: "下载出错", type: "error" }) }
                   }}
                   style={{
                     width: "100%", height: 52, borderRadius: "var(--mei-radius-xl)",
@@ -606,7 +710,7 @@ export default function IdPhotoTest() {
                     boxShadow: "var(--mei-shadow-md)", transition: "all var(--mei-motion-fast)"
                   }}
                 >
-                  {activeDisplay === "result" ? "下载最终换装成果 (30点)" : "下载纯净证件照 (免费)"}
+                  {activeDisplay === "result" ? "下载最终换装图 (30点)" : "下载证件照成果 (免费)"}
                 </button>
                 
                 {/* Secondary Actions */}
@@ -626,18 +730,6 @@ export default function IdPhotoTest() {
                   >
                     保存预览图
                   </button>
-                  {resultPreview && idphotoPreview && activeDisplay === "result" && (
-                    <button
-                      onClick={() => setActiveDisplay("idphoto")}
-                      style={{
-                        flex: 1, height: 40, borderRadius: "var(--mei-radius-lg)",
-                        border: "1px solid var(--mei-color-primary-500)", backgroundColor: "var(--mei-color-primary-50)",
-                        color: "var(--mei-color-primary-600)", fontSize: "var(--mei-font-xs)", cursor: "pointer"
-                      }}
-                    >
-                      回顾证件照
-                    </button>
-                  )}
                 </div>
               </div>
             )}
@@ -645,7 +737,30 @@ export default function IdPhotoTest() {
         </div>
       </div>
 
+      {/* NEW: Friendly Toast Notification */}
+      {toast && (
+        <div style={{
+          position: "fixed", bottom: 40, left: "50%", transform: "translateX(-50%)",
+          padding: "var(--mei-spacing-inset-md) var(--mei-spacing-inline-xl)",
+          borderRadius: "var(--mei-radius-md)",
+          backgroundColor: toast.type === "error" ? "var(--mei-text-primary)" : "var(--mei-color-primary-500)",
+          color: "var(--mei-text-inverse)",
+          fontSize: "var(--mei-font-sm)",
+          fontWeight: "var(--mei-weight-medium)",
+          boxShadow: "var(--mei-shadow-lg)",
+          zIndex: 1000,
+          display: "flex", alignItems: "center", gap: 8,
+          animation: "toastIn var(--mei-motion-fast) ease-out"
+        }}>
+          {toast.type === "error" ? "⚠️" : "ℹ️"} {toast.msg}
+        </div>
+      )}
+
       <style jsx global>{`
+        @keyframes slideDown {
+          from { opacity: 0; transform: translateY(-20px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
         @keyframes slideUp {
           from { opacity: 0; transform: translateY(20px); }
           to { opacity: 1; transform: translateY(0); }
@@ -653,6 +768,10 @@ export default function IdPhotoTest() {
         @keyframes scaleIn {
           from { transform: scale(0.98); opacity: 0; }
           to { transform: scale(1); opacity: 1; }
+        }
+        @keyframes toastIn {
+          from { opacity: 0; transform: translate(-50%, 20px); }
+          to { opacity: 1; transform: translate(-50%, 0); }
         }
       `}</style>
     </div>

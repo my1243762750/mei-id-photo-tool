@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
 
-import { CLIPIMG_API_KEY } from "../../../lib/config"
-
 const CLIPIMG_API = "https://www.clipimg.com/api/idphoto/make"
 
 const COLOR_MAP: Record<string, string> = {
@@ -16,6 +14,13 @@ const COLOR_MAP: Record<string, string> = {
 
 export async function POST(req: NextRequest) {
   try {
+    // Read API Key from custom header, fallback to system environment variable
+    const userApiKey = req.headers.get("x-api-key") || process.env.CLIPIMG_API_KEY
+
+    if (!userApiKey) {
+      return NextResponse.json({ error: "API Key not configured. Please set it in Settings." }, { status: 401 })
+    }
+
     const formData = await req.formData()
     const file = formData.get("file") as File | null
     const color = formData.get("color") as string || "white"
@@ -51,7 +56,7 @@ export async function POST(req: NextRequest) {
     const clipRes = await fetch(CLIPIMG_API, {
       method: "POST",
       headers: {
-        "X-API-Key": CLIPIMG_API_KEY,
+        "X-API-Key": userApiKey,
         "Content-Type": "application/json",
       },
       body: JSON.stringify(payload),

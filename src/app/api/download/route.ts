@@ -1,9 +1,14 @@
 import { NextRequest, NextResponse } from "next/server"
 
-import { CLIPIMG_API_KEY } from "../../../lib/config"
-
 export async function POST(req: NextRequest) {
   try {
+    // Read API Key from custom header, fallback to system environment variable
+    const userApiKey = req.headers.get("x-api-key") || process.env.CLIPIMG_API_KEY
+
+    if (!userApiKey) {
+      return NextResponse.json({ error: "API Key not configured" }, { status: 401 })
+    }
+
     const { download_url } = await req.json()
 
     if (!download_url) {
@@ -12,7 +17,7 @@ export async function POST(req: NextRequest) {
 
     const res = await fetch(download_url, {
       method: "POST",
-      headers: { "X-API-Key": CLIPIMG_API_KEY },
+      headers: { "X-API-Key": userApiKey },
     })
 
     const buffer = await res.arrayBuffer()
