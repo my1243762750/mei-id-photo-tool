@@ -11,41 +11,25 @@
 
 ## 🖼️ 预览与演示
 
-### 1. 核心流程展示
-项目支持从原始照片到最终换装的完整闭环流程：
+### ✨ 最终效果
+<p align="center">
+  <img src="./screenshots/demo-3.jpg" width="600" alt="最终换装效果">
+</p>
 
-| **1. 智能抠图与背景切换** | **2. 选择专业正装** | **3. 最终效果展示** |
-| :---: | :---: | :---: |
-| ![智能抠图](./screenshots/demo-1.jpg) | ![正装选择](./screenshots/demo-2.jpg) | ![最终换装](./screenshots/demo-3.jpg) |
+### 🛠️ 制作流程
+只需三步，即可拥有专业级证件照：
 
-### 2. 功能特点
-- **AI 赋能**：采用先进的算法，边缘切割极其平滑。
-- **即时预览**：所有操作实时反馈，所见即所得。
-- **海量素材**：内置男装、女装、童装等多种正装样式。
+| **1. 智能抠图与背景切换** | **2. 选择专业正装素材** |
+| :---: | :---: |
+| <img src="./screenshots/demo-1.jpg" width="380"> | <img src="./screenshots/demo-2.jpg" width="380"> |
+| *高精度 AI 边缘识别* | *内置数十款男女正装* |
 
 ---
 
-## ✨ 核心特性
-
-### 1. 克隆项目
-```bash
-git clone https://github.com/your-username/mei-id-photo-tool.git
-cd mei-id-photo-tool
-```
-
-### 2. 安装依赖
-```bash
-npm install
-```
-
-### 3. 运行开发服务器
-```bash
-npm run dev
-```
-打开 [http://localhost:3000](http://localhost:3000) 即可预览。
-
-### 4. 配置 API Key
-在使用前，您需要在 [ClipImg 官网](https://www.clipimg.com/) 免费获取一个 32 位的 API Key，并填入设置面板。
+## 🚀 功能特点
+- **AI 赋能**：采用先进的算法，边缘切割极其平滑，发丝清晰可见。
+- **即时预览**：所有操作实时反馈，所见即所得。
+- **隐私安全**：API Key 仅保存在浏览器本地，确保您的隐私数据安全。
 
 ---
 
