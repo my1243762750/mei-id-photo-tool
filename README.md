@@ -2,8 +2,8 @@
 
 [![Next.js](https://img.shields.io/badge/Next.js-15-black?logo=next.js)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?logo=typescript)](https://www.typescriptlang.org/)
+[![React](https://img.shields.io/badge/React-19-61DAFB?logo=react)](https://react.dev/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Live Demo](https://img.shields.io/badge/Demo-Live-brightgreen?logo=vercel)](https://mei-id-photo-tool.vercel.app/)
 
 **ClipImg AI 证件照大师** 是一款基于 Next.js 开发的现代化证件照制作工具。通过集成 [ClipImg API](https://www.clipimg.com/)，它实现了智能抠图、背景切换以及专业的正装换装功能，让你的普通生活照秒变专业证件照。
 
