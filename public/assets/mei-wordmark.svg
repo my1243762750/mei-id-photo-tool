@@ -1,0 +1,16 @@
+<svg width="720" height="240" viewBox="0 0 720 240" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Mei navigation logo</title>
+  <desc id="desc">A precise geometric Mei logo prepared for navigation and horizontal UI areas.</desc>
+  <defs>
+    <linearGradient id="mei-nav-gradient" x1="268" y1="36" x2="452" y2="204" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#3B82F6"/>
+      <stop offset="0.56" stop-color="#6C5CE7"/>
+      <stop offset="1" stop-color="#8B5CF6"/>
+    </linearGradient>
+  </defs>
+  <rect x="268" y="36" width="184" height="168" rx="38" fill="url(#mei-nav-gradient)"/>
+  <path d="M304 146C317 116 332 92 348 92C364 92 369 112 375 130C381 112 388 92 405 92C425 92 438 116 440 146" stroke="white" stroke-width="20" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="360" cy="62" r="11" fill="white"/>
+  <circle cx="339" cy="72" r="7" fill="white"/>
+  <circle cx="381" cy="72" r="7" fill="white"/>
+</svg>

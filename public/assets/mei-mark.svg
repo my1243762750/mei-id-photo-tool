@@ -1,0 +1,16 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Mei brand mark</title>
+  <desc id="desc">A precise geometric Mei mark inspired by the letter m, plum blossom, and ocean movement.</desc>
+  <defs>
+    <linearGradient id="mei-mark-gradient" x1="104" y1="88" x2="408" y2="424" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#3B82F6"/>
+      <stop offset="0.56" stop-color="#6C5CE7"/>
+      <stop offset="1" stop-color="#8B5CF6"/>
+    </linearGradient>
+  </defs>
+  <rect x="72" y="72" width="368" height="368" rx="84" fill="url(#mei-mark-gradient)"/>
+  <path d="M144 326C170 266 199 218 230 218C261 218 270 258 282 294C294 258 307 218 342 218C381 218 407 266 410 326" stroke="white" stroke-width="40" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="256" cy="154" r="22" fill="white"/>
+  <circle cx="214" cy="174" r="14" fill="white"/>
+  <circle cx="298" cy="174" r="14" fill="white"/>
+</svg>
