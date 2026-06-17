@@ -8,3 +8,9 @@ out/
 .env.production.local
 *.tsbuildinfo
 next-env.d.ts
+
+# Backups and temporary files
+.git.backup/
+*.bak
+*.swp
+.DS_Store
