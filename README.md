@@ -16,7 +16,7 @@
 
 | **1. 智能抠图与背景切换** | **2. 选择专业正装** | **3. 最终效果展示** |
 | :---: | :---: | :---: |
-| ![智能抠图](./screenshots/demo-1.png) | ![正装选择](./screenshots/demo-2.png) | ![最终换装](./screenshots/demo-3.png) |
+| ![智能抠图](./screenshots/demo-1.jpg) | ![正装选择](./screenshots/demo-2.jpg) | ![最终换装](./screenshots/demo-3.jpg) |
 
 ### 2. 功能特点
 - **AI 赋能**：采用先进的算法，边缘切割极其平滑。
