@@ -385,8 +385,12 @@ export default function IdPhotoTest() {
                   ref={fileRef} type="file" accept="image/*"
                   onChange={handleFileChange} style={{ display: "none" }}
                 />
-                <div style={{ fontSize: "var(--mei-font-3xl)", marginBottom: "var(--mei-spacing-stack-sm)" }}>
-                  {photoPreview ? "✅" : "📸"}
+                <div style={{ marginBottom: "var(--mei-spacing-stack-sm)" }}>
+                  {photoPreview ? (
+                    <span style={{ fontSize: "var(--mei-font-3xl)" }}>✅</span>
+                  ) : (
+                    <img src="/assets/mei-mark.svg" style={{ width: 48, height: 48, opacity: 0.6 }} alt="Mei Logo" />
+                  )}
                 </div>
                 <div style={{ fontSize: "var(--mei-font-sm)", color: "var(--mei-text-primary)", fontWeight: "var(--mei-weight-medium)" }}>
                   {photoPreview ? "照片已就绪" : "点击上传原始照片"}
@@ -608,7 +612,9 @@ export default function IdPhotoTest() {
                 />
               ) : (
                 <div style={{ textAlign: "center", color: "var(--mei-text-tertiary)" }}>
-                  <div style={{ fontSize: 64, marginBottom: 16 }}>✨</div>
+                  <div style={{ marginBottom: 16 }}>
+                    <img src="/assets/mei-mark.svg" style={{ width: 80, height: 80, opacity: 0.2 }} alt="Mei Logo" />
+                  </div>
                   <p style={{ fontSize: "var(--mei-font-sm)" }}>准备迎接你的完美证件照</p>
                 </div>
               )}
